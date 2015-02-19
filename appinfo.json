@@ -1,12 +1,12 @@
 {
     "appKeys": {
-        "city": 2,
         "icon": 0,
-        "invert": 3,
+        "location": 2,
         "temperature": 1
     },
     "capabilities": [
-        "location"
+        "location",
+        "configurable"
     ],
     "companyName": "Lemon xD",
     "longName": "4Cells tribute",
@@ -99,7 +99,7 @@
     "shortName": "4Cells",
     "uuid": "6bf7e267-dc31-42fe-9854-2abd6ea087cd",
     "versionCode": 1,
-    "versionLabel": "1.1",
+    "versionLabel": "1.2",
     "watchapp": {
         "watchface": true
     }

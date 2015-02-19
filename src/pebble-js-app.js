@@ -64,16 +64,14 @@ var imageId = {
 3200 : NA, //not available
 };
 
-var city;
 var icon;
 var temperature;
 
 var options = JSON.parse(localStorage.getItem('options'));
-//console.log('read options: ' + JSON.stringify(options));
-options = { "use_gps" : "true",
+console.log('read options: ' + JSON.stringify(options));
+if (options === null) options = { "use_gps" : "true",
 "location" : "",
-"units" : "celsius",
-"invert_color" : "false"};
+"units" : "celsius"};
 
 function getWeatherFromLatLong(latitude, longitude) {
 var response;
@@ -88,8 +86,8 @@ if (req.status == 200) {
 response = JSON.parse(req.responseText);
 if (response) {
 woeid = response.query.results.Result.woeid;
-city = response.query.results.Result.city;
 getWeatherFromWoeid(woeid);
+options.location = response.query.results.Result.city;
 }
 } else {
 console.log("Error");
@@ -111,9 +109,10 @@ if (req.readyState == 4) {
 if (req.status == 200) {
 // console.log(req.responseText);
 response = JSON.parse(req.responseText);
-if (response) {
-woeid = response.query.results.place.woeid;
-getWeatherFromWoeid(woeid);
+if (response) { 
+  if (response.query.results === null) { woeid = 1; } else {
+    woeid = response.query.results.place.woeid;}
+  getWeatherFromWoeid(woeid);
 }
 } else {
 console.log("Error");
@@ -145,8 +144,7 @@ console.log("condition " + condition.text);
 Pebble.sendAppMessage({
 "icon" : icon,
 "temperature" : temperature,
-"city" : city,
-"invert_color" : (options.invert_color == "true" ? 1 : 0),
+"location" : options.location,
 });
 }
 } else {
@@ -178,10 +176,30 @@ console.warn('location error (' + err.code + '): ' + err.message);
 Pebble.sendAppMessage({
 "icon":13,
 "temperature":"",
-"city":""
+"location":""
 });
 }
 updateWeather();
+
+Pebble.addEventListener('showConfiguration', function(e) {
+var uri = 'http://lemon-xd.github.io/PebbleFace/settings.html?' +
+'use_gps=' + encodeURIComponent(options.use_gps) +
+'&location=' + encodeURIComponent(options.location) +
+'&units=' + encodeURIComponent(options.units);
+//console.log('showing configuration at uri: ' + uri);
+Pebble.openURL(uri);
+});
+
+Pebble.addEventListener('webviewclosed', function(e) {
+if (e.response) {
+options = JSON.parse(decodeURIComponent(e.response));
+localStorage.setItem('options', JSON.stringify(options));
+//console.log('storing options: ' + JSON.stringify(options));
+updateWeather();
+} else {
+console.log('no options received');
+}
+});
 
 Pebble.addEventListener("ready", function(e) {
 //console.log("connect!" + e.ready);

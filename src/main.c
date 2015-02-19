@@ -39,33 +39,16 @@ RESOURCE_ID_NA,
 enum WeatherKey {
 WEATHER_ICON_KEY = 0x0, // TUPLE_INT
 WEATHER_TEMPERATURE_KEY = 0x1, // TUPLE_CSTRING
-WEATHER_CITY_KEY = 0x2,
-INVERT_COLOR_KEY = 0x3, // TUPLE_CSTRING
+WEATHER_CITY_KEY = 0x2
 };
 
 static AppSync sync;
 static uint8_t sync_buffer[64];
 
-void set_invert_color(bool invert) {
-if (invert && inverter_layer == NULL) {
-// Add inverter layer
-Layer *window_layer = window_get_root_layer(window);
-inverter_layer = inverter_layer_create(GRect(0, 0, 144, 168));
-layer_add_child(window_layer, inverter_layer_get_layer(inverter_layer));
-} else if (!invert && inverter_layer != NULL) {
-// Remove Inverter layer
-layer_remove_from_parent(inverter_layer_get_layer(inverter_layer));
-inverter_layer_destroy(inverter_layer);
-inverter_layer = NULL;
-}
-// No action required
-}
-
 static void sync_tuple_changed_callback(const uint32_t key,
 const Tuple* new_tuple,
 const Tuple* old_tuple,
 void* context) {
-bool invert;
 // App Sync keeps new_tuple in sync_buffer, so we may use it directly
 switch (key) {
 case WEATHER_ICON_KEY:
@@ -81,11 +64,6 @@ text_layer_set_text(temp_layer, new_tuple->value->cstring);
 break;
 case WEATHER_CITY_KEY:
 text_layer_set_text(city_layer, new_tuple->value->cstring);
-break;
-case INVERT_COLOR_KEY:
-invert = new_tuple->value->uint8 != 0;
-persist_write_bool(INVERT_COLOR_KEY, invert);
-set_invert_color(invert);
 break;
 }
 }
@@ -184,16 +162,17 @@ text_layer_set_text_alignment(battery_layer, GTextAlignmentCenter);
 text_layer_set_text(battery_layer, "100%");
 
 // Setup weather bar
+icon_layer = bitmap_layer_create(GRect(80, 25, 58, 40));
+bitmap_layer_set_background_color(icon_layer, GColorClear);
+layer_add_child(window_get_root_layer(window), bitmap_layer_get_layer(icon_layer));
+
 city_layer = text_layer_create(GRect(80, 11, 58, 14));
 text_layer_set_text_color(city_layer, GColorWhite);
 text_layer_set_background_color(city_layer, GColorClear);
 text_layer_set_font(city_layer, fonts_get_system_font(FONT_KEY_GOTHIC_14));
 text_layer_set_text_alignment(city_layer, GTextAlignmentCenter);
 layer_add_child(window_get_root_layer(window), text_layer_get_layer(city_layer)); 
-
-icon_layer = bitmap_layer_create(GRect(80, 25, 58, 40));
-layer_add_child(window_get_root_layer(window), bitmap_layer_get_layer(icon_layer));
-
+  
 temp_layer = text_layer_create(GRect(80, 60, 58, 20));
 text_layer_set_text_color(temp_layer, GColorWhite);
 text_layer_set_background_color(temp_layer, GColorClear);
@@ -209,8 +188,7 @@ app_message_open(inbound_size, outbound_size);
 Tuplet initial_values[] = {
 TupletInteger(WEATHER_ICON_KEY, (uint8_t) 13),
 TupletCString(WEATHER_TEMPERATURE_KEY, ""),
-TupletCString(WEATHER_CITY_KEY, "N/A"),
-TupletInteger(INVERT_COLOR_KEY, persist_read_bool(INVERT_COLOR_KEY)),
+TupletCString(WEATHER_CITY_KEY, "N/A")
 };
 app_sync_init(&sync, sync_buffer, sizeof(sync_buffer), initial_values,
 ARRAY_LENGTH(initial_values), sync_tuple_changed_callback,
