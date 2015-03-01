@@ -96,10 +96,11 @@
             }
         ]
     },
+    "sdkVersion": "2",
     "shortName": "4Cells",
     "uuid": "6bf7e267-dc31-42fe-9854-2abd6ea087cd",
     "versionCode": 1,
-    "versionLabel": "1.2",
+    "versionLabel": "1.3",
     "watchapp": {
         "watchface": true
     }

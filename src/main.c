@@ -92,7 +92,7 @@ strftime(time_min, sizeof(time_min), "%M", tick_time);
 text_layer_set_text(text2_layer, time_min);
 strftime(date_buffer, sizeof(date_buffer), "%A", tick_time);
 text_layer_set_text(date_layer, date_buffer);
-strftime(date_big, sizeof(date_big), "%e", tick_time);
+strftime(date_big, sizeof(date_big), "%d", tick_time);
 text_layer_set_text(date2_layer, date_big);
 handle_battery(battery_state_service_peek());
 }
@@ -133,7 +133,7 @@ layer_add_child(window_get_root_layer(window), text_layer_get_layer(text2_layer)
 
 // Date
 date_layer = text_layer_create(GRect(7, 24, 60, 16));
-date2_layer = text_layer_create(GRect(7, 40, 60, 34));
+date2_layer = text_layer_create(GRect(6, 40, 60, 34));
 text_layer_set_background_color(date_layer, GColorClear);
 text_layer_set_background_color(date2_layer, GColorClear);
 text_layer_set_text_color(date_layer, GColorWhite);
